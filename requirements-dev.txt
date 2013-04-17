@@ -1,5 +1,6 @@
 # This includes everything you need to develop on ElasticUtils.
 -r requirements.txt
+-r requirements-django.txt
 
 # nose for tests
 nose
