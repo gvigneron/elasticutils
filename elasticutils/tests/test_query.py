@@ -76,7 +76,7 @@ class QTest(TestCase):
         q2 = Q(bar__text='def')
         q2 += Q(foo__text='abc')
         eq_(q1, q2)
-        
+
         q2 = Q(foo__text='abc')
         q2 += Q(bar__text='def')
         eq_(q1, q2)
@@ -796,6 +796,18 @@ class FilterTest(ESTestCase):
         eq_(len(self.get_s().filter(id__lt=3)), 2)
         eq_(len(self.get_s().filter(id__lte=3)), 3)
 
+    def test_filter_raw(self):
+        s = self.get_s().filter_raw({'term': {'tag': 'awesome'}})
+        eq_(s._build_query(),
+            {'filter': {'term': {'tag': 'awesome'}}})
+
+    def test_filter_raw_overrides_everything(self):
+        s = self.get_s().filter_raw({'term': {'tag': 'awesome'}})
+        s = s.filter(tag='boring')
+        s = s.filter(F(tag='end'))
+        eq_(s._build_query(),
+            {'filter': {'term': {'tag': 'awesome'}}})
+
 
 class FacetTest(ESTestCase):
     def test_facet(self):
@@ -1056,7 +1068,7 @@ class FacetTest(ESTestCase):
         )
 
         data = qs.facet_counts()
-        eq_(data, 
+        eq_(data,
             {
                 u'created1': {
                     u'count': 9,
